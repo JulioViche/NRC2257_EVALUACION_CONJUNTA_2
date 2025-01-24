@@ -1,9 +1,9 @@
 class Libro {
-    constructor(titulo, autor) {
+    constructor(titulo, autor, stock) {
         this.titulo = titulo;
         this.autor = autor;
         this.disponibilidad = true;
-        this.stock = 0;
+        this.stock = stock;
     }
 }
 
@@ -19,20 +19,28 @@ class Biblioteca {
 
     prestarLibro(titulo) {
         const index = this.libros.findIndex(libro => libro.titulo === titulo);
-        if (index !== -1) {
-            const libroPrestado = this.libros.splice(index, 1)[0]; // Sacar libro del inventario
+        if (index !== -1 && this.libros[index].stock > 0) { // Verificar stock
+            const libroPrestado = this.libros[index];
+            libroPrestado.stock--; // Disminuir stock al prestar
             this.librosPrestados.push(libroPrestado); // Agregar a libros prestados
+            console.log(`Confirmación: El libro "${libroPrestado.titulo}" ha sido prestado exitosamente.`); // Confirmation message
             this.enviarRecordatorio(libroPrestado); // Enviar recordatorio
             return libroPrestado;
         }
-        return null; // Libro no encontrado
+        return null; // Libro no encontrado o sin stock
     }
 
     devolverLibro(titulo) {
-        const index = this.librosPrestados.findIndex(libro => libro.titulo === titulo);
-        if (index !== -1) {
-            const libroDevuelto = this.librosPrestados.splice(index, 1)[0]; // Sacar libro de prestados
-            this.libros.push(libroDevuelto); 
+        const indexPrestado = this.librosPrestados.findIndex(libro => libro.titulo === titulo);
+        if (indexPrestado !== -1) {
+            const libroDevuelto = this.librosPrestados.splice(indexPrestado, 1)[0]; // Sacar libro de prestados
+            const indexLibro = this.libros.findIndex(libro => libro.titulo === libroDevuelto.titulo); // Buscar en libros
+            if (indexLibro !== -1) {
+                this.libros[indexLibro].stock++; // Aumentar stock al devolver
+            } else {
+                this.libros.push(libroDevuelto); // Si no existe, agregarlo
+            }
+            this.confirmarDevolucion(libroDevuelto); // Confirmation message
             return libroDevuelto;
         }
         return null; // Libro no encontrado
@@ -41,7 +49,7 @@ class Biblioteca {
     enviarRecordatorio(libro) {
         setTimeout(() => {
             console.log(`Recordatorio: El libro "${libro.titulo}" debe ser devuelto.`);
-        }, 10000); // Recordatorio después de 10 segundos (simulación)
+        }, 20000); // Recordatorio después de 20 segundos 
     }
 
     buscarLibroPorTitulo(titulo) {
@@ -82,9 +90,9 @@ class Biblioteca {
 
 // Crear inventario de libros
 const biblioteca = new Biblioteca();
-biblioteca.agregarLibro(new Libro('Cien años de soledad', 'Gabriel García Márquez'));
-biblioteca.agregarLibro(new Libro('Don Quijote de la Mancha', 'Miguel de Cervantes'));
-biblioteca.agregarLibro(new Libro('El amor en los tiempos del cólera', 'Gabriel García Márquez'));
+biblioteca.agregarLibro(new Libro('Cien años de soledad', 'Gabriel García Márquez', 5));
+biblioteca.agregarLibro(new Libro('Don Quijote de la Mancha', 'Miguel de Cervantes', 5));
+biblioteca.agregarLibro(new Libro('El amor en los tiempos del cólera', 'Gabriel García Márquez', 5));
 
 // Función principal para ejecutar el sistema
 function main() {
@@ -114,3 +122,11 @@ function main() {
 
 // Ejecutar el sistema
 main();
+
+
+//confirmacion reservas y devoluciones exitosas
+/*
+cuando un libro se presta se resta del stock, cuando se devuelve se lo vuelve a sumar, 
+el arreglo de libros prestados no muestra los dibros q hansido prestados y este arreglo se debe actualizar
+cuando se devuelven los libros
+*/
