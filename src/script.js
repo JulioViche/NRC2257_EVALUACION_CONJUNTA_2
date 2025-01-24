@@ -24,6 +24,7 @@ class Biblioteca {
                 const libro = this.libros.find(libro => libro.titulo === titulo && libro.stock > 0);
                 if (libro) {
                     libro.stock--; // Disminuir el stock al prestar
+                    libro.disponibilidad = libro.stock > 0; // Actualizar disponibilidad
                     this.librosPrestados.push({ titulo: libro.titulo, autor: libro.autor });
                     console.log(`Confirmación: El libro "${libro.titulo}" ha sido prestado.`);
                     this.enviarRecordatorio(libro);
@@ -43,6 +44,7 @@ class Biblioteca {
                     this.librosPrestados.splice(indexPrestado, 1); // Quitar de libros prestados
                     const libro = this.libros.find(libro => libro.titulo === titulo);
                     libro.stock++; // Incrementar stock al devolver
+                    libro.disponibilidad = true; // Actualizar disponibilidad
                     console.log(`Confirmación: El libro "${libro.titulo}" ha sido devuelto exitosamente.`);
                     resolve(libro);
                 } else {
@@ -53,11 +55,13 @@ class Biblioteca {
     }
 
     enviarRecordatorio(libro) {
-        if (this.librosPrestados.some(libroPrestado => libroPrestado.titulo === libro.titulo)) {
-            setTimeout(() => {
+        // Verificar si el libro aún está prestado antes de enviar el recordatorio
+        setTimeout(() => {
+            const siguePrestado = this.librosPrestados.some(libroPrestado => libroPrestado.titulo === libro.titulo);
+            if (siguePrestado) {
                 console.log(`Recordatorio: El libro "${libro.titulo}" debe ser devuelto.`);
-            }, 20000);
-        }
+            }
+        }, 20000);
     }
 
     reservarLibro(titulo) {
@@ -98,6 +102,7 @@ class Biblioteca {
                 stock: libro.stock
             }))
         );
+        return disponibles; // Devolver el arreglo de libros disponibles
     }
 
     mostrarLibrosPrestados() {
