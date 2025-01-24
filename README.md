@@ -11,9 +11,6 @@ Una biblioteca digital necesita mejorar su sistema de gestión de préstamos y d
 ## Análisis del problema
 
 ### 1. Estructura del sistema de préstamos
-
-
-
 ### 2. Filtrado y búsquedas dinámicas
 ### 3. Interacción con el usuario
 ### 4. Alertas y recordatorios
